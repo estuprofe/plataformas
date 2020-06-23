@@ -1,15 +1,23 @@
 import pygame, sys
-from pygame.locals import *
- 
-#pip install pygame into cmd, use 3.7 21/12/2019
- 
-pygame.init()
+
 clock = pygame.time.Clock()
-WINDOW_SIZE = (400, 400)
-pygame.display.set_caption("Game")
-screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32)
-display = pygame.Surface((300,200))
-# Map
+
+from pygame.locals import *
+pygame.init() # initiates pygame
+
+pygame.display.set_caption('Pygame Platformer')
+
+WINDOW_SIZE = (600,400)
+
+screen = pygame.display.set_mode(WINDOW_SIZE,0,32) # initiate the window
+
+display = pygame.Surface((300,200)) # used as the surface for rendering, which is scaled
+
+moving_right = False
+moving_left = False
+vertical_momentum = 0
+air_timer = 0
+
 game_map = [['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],
             ['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],
             ['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],
@@ -24,34 +32,20 @@ game_map = [['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
             ['1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'],
             ['1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1']]
 
-# Image
-player_image = pygame.image.load('player.png').convert()
-player_image.set_colorkey((255,255,255))
-
 grass_img = pygame.image.load('grass.png')
 dirt_img = pygame.image.load('dirt.png')
-# other variables for movements
-location = [100, 100]
-vertical_momentum = 0
-air_timer = 0
-moving_right = False
-moving_left = False
-SALTO = 6
-GRAVEDAD = 0.4
-VELOCIDAD_MAXIMA = 10
- 
-# collitions
-# rectangle that wraps the player
-player_rect = pygame.Rect(location[0], location[1], player_image.get_width(), player_image.get_height())
-# Funciones
+
+player_img = pygame.image.load('player.png').convert()
+player_img.set_colorkey((255,255,255))
+
+player_rect = pygame.Rect(100,100,5,13)
+
 def collision_test(rect,tiles):
     hit_list = []
     for tile in tiles:
         if rect.colliderect(tile):
             hit_list.append(tile)
     return hit_list
-
-
 
 def move(rect,movement,tiles):
     collision_types = {'top':False,'bottom':False,'right':False,'left':False}
@@ -98,9 +92,9 @@ while True: # game loop
     if moving_left == True:
         player_movement[0] -= 2
     player_movement[1] += vertical_momentum
-    vertical_momentum += GRAVEDAD
-    if vertical_momentum > VELOCIDAD_MAXIMA:
-        vertical_momentum = VELOCIDAD_MAXIMA
+    vertical_momentum += 0.2
+    if vertical_momentum > 3:
+        vertical_momentum = 3
 
     player_rect,collisions = move(player_rect,player_movement,tile_rects)
 
@@ -110,7 +104,7 @@ while True: # game loop
     else:
         air_timer += 1
 
-    display.blit(player_image,(player_rect.x,player_rect.y))
+    display.blit(player_img,(player_rect.x,player_rect.y))
 
 
     for event in pygame.event.get(): # event loop
@@ -124,7 +118,7 @@ while True: # game loop
                 moving_left = True
             if event.key == K_UP:
                 if air_timer < 6:
-                    vertical_momentum = - SALTO
+                    vertical_momentum = -5
         if event.type == KEYUP:
             if event.key == K_RIGHT:
                 moving_right = False
