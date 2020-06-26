@@ -10,19 +10,18 @@ pygame.display.set_caption("Game")
 screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32)
 display = pygame.Surface((300,200))
 # Map
-game_map = [['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],
-            ['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],
-            ['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],
-            ['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],
-            ['0','2','0','0','0','0','0','2','2','2','2','2','0','0','0','0','0','0','0'],
-            ['0','0','0','0','0','0','2','0','0','0','0','0','0','0','2','0','0','0','0'],
-            ['2','2','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','2','2'],
-            ['1','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','1'],
-            ['1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'],
-            ['1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'],
-            ['1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'],
-            ['1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1'],
-            ['1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1']]
+
+game_map = []
+with open("mapa.txt") as archivo:
+    datos = archivo.read()
+    datos = datos.split('\n')
+    for linea in datos:
+        game_map.append(list(linea))
+
+
+
+
+
 
 # Image
 player_image = pygame.image.load('player.png').convert()
@@ -39,7 +38,8 @@ moving_left = False
 SALTO = 6
 GRAVEDAD = 0.4
 VELOCIDAD_MAXIMA = 10
- 
+
+scroll = [0,0] 
 # collitions
 # rectangle that wraps the player
 player_rect = pygame.Rect(location[0], location[1], player_image.get_width(), player_image.get_height())
@@ -76,17 +76,20 @@ def move(rect,movement,tiles):
     return rect, collision_types
 
 while True: # game loop
+    scroll[0] = (player_rect.x )+scroll[0]
+    
+    print (scroll)
     display.fill((146,244,255)) # clear screen by filling it with blue
-
+    print(game_map.__str__)
     tile_rects = []
     y = 0
     for layer in game_map:
         x = 0
         for tile in layer:
             if tile == '1':
-                display.blit(dirt_img,(x*16,y*16))
+                display.blit(dirt_img,(x*16+scroll[0],y*16+scroll[1]))
             if tile == '2':
-                display.blit(grass_img,(x*16,y*16))
+                display.blit(grass_img,(x*16+scroll[0],y*16+scroll[1]))
             if tile != '0':
                 tile_rects.append(pygame.Rect(x*16,y*16,16,16))
             x += 1
@@ -110,7 +113,7 @@ while True: # game loop
     else:
         air_timer += 1
 
-    display.blit(player_image,(player_rect.x,player_rect.y))
+    display.blit(player_image,(player_rect.x+scroll[0],player_rect.y+scroll[1]))
 
 
     for event in pygame.event.get(): # event loop
