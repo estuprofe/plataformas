@@ -9,6 +9,8 @@ WINDOW_SIZE = (400, 400)
 pygame.display.set_caption("Game")
 screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32)
 display = pygame.Surface((300,200))
+
+
 # Map
 
 game_map = []
@@ -38,11 +40,12 @@ moving_left = False
 SALTO = 6
 GRAVEDAD = 0.4
 VELOCIDAD_MAXIMA = 10
+true_scroll = [0,0]
 
-scroll = [0,0] 
 # collitions
 # rectangle that wraps the player
 player_rect = pygame.Rect(location[0], location[1], player_image.get_width(), player_image.get_height())
+background_objects = [[0.25,[120,10,70,400]],[0.25,[280,30,40,400]],[0.5,[30,40,40,400]],[0.5,[130,90,100,400]],[0.5,[300,80,120,400]]]
 # Funciones
 def collision_test(rect,tiles):
     hit_list = []
@@ -76,12 +79,27 @@ def move(rect,movement,tiles):
     return rect, collision_types
 
 while True: # game loop
-    scroll[0] = (player_rect.x )+scroll[0]
     
-    print (scroll)
+
+    true_scroll[0] += (player_rect.x-true_scroll[0]-152)/20
+    true_scroll[1] += (player_rect.y-true_scroll[1]-106)/20
+    scroll = true_scroll.copy()
+    scroll[0] = int(-scroll[0])
+    scroll[1] = int(-scroll[1])
+    
+    
     display.fill((146,244,255)) # clear screen by filling it with blue
     print(game_map.__str__)
+    for background_object in background_objects:
+        obj_rect = pygame.Rect(background_object[1][0]+scroll[0]*background_object[0],background_object[1][1]+scroll[1]*background_object[0],background_object[1][2],background_object[1][3])
+    if background_object[0] == 0.5:
+        pygame.draw.rect(display,(14,222,150),obj_rect)
+    else:
+        pygame.draw.rect(display,(9,91,85),obj_rect)
+
+
     tile_rects = []
+    
     y = 0
     for layer in game_map:
         x = 0
@@ -114,8 +132,7 @@ while True: # game loop
         air_timer += 1
 
     display.blit(player_image,(player_rect.x+scroll[0],player_rect.y+scroll[1]))
-
-
+    
     for event in pygame.event.get(): # event loop
         if event.type == QUIT:
             pygame.quit()
